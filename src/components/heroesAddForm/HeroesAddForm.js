@@ -4,11 +4,15 @@ import { v4 as uuidv4 } from 'uuid';
 import {useHttp} from "../../hooks/http.hook";
 import {useDispatch, useSelector} from "react-redux";
 import {heroCreated} from "../heroesList/heroesSlice";
+import {selectAll} from "../heroesFilters/filtersSlice";
+import store from "../../store";
 
 
 const HeroesAddForm = () => {
     const {request} = useHttp();
     const dispatch = useDispatch();
+    const {filtersLoadingStatus} = useSelector(state => state.filters);
+    const filters = selectAll(store.getState());
 
     const addHero = (values) => {
         const newHero = {
@@ -18,6 +22,22 @@ const HeroesAddForm = () => {
         request(`http://localhost:3001/heroes/`, "POST", JSON.stringify(newHero))
             .then(dispatch(heroCreated(newHero)))
             .catch(err => console.log(err));
+    }
+
+    const renderFilters = (filters, status) => {
+        if (status === "loading") {
+            return <option>Загрузка элементов</option>
+        } else if (status === "error") {
+            return <option>Ошибка загрузки</option>
+        }
+
+        if (filters && filters.length > 0 ) {
+            return filters.map(({name, label}) => {
+                if (name === 'all')  return;
+
+                return <option key={name} value={name}>{label}</option>
+            })
+        }
     }
 
     return (
@@ -69,11 +89,8 @@ const HeroesAddForm = () => {
                         className="form-select"
                         id="element"
                         name="element">
-                        <option >Я владею элементом...</option>
-                        <option value="fire">Огонь</option>
-                        <option value="water">Вода</option>
-                        <option value="wind">Ветер</option>
-                        <option value="earth">Земля</option>
+                        <option>Я владею элементом...</option>
+                        {renderFilters(filters, filtersLoadingStatus)}
                     </Field>
                 </div>
                 <ErrorMessage component="div" style={{'color': 'red'}} name="select"/>
