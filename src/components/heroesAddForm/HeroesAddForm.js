@@ -3,13 +3,12 @@ import * as Yup from 'yup';
 import { v4 as uuidv4 } from 'uuid';
 import {useHttp} from "../../hooks/http.hook";
 import {useDispatch, useSelector} from "react-redux";
-import {heroCreated} from "../../actions";
+import {heroCreated} from "../heroesList/heroesSlice";
 
 
 const HeroesAddForm = () => {
     const {request} = useHttp();
     const dispatch = useDispatch();
-    const {filters, filtersLoadingStatus} = useSelector(state => state.filters);
 
     const addHero = (values) => {
         const newHero = {
@@ -19,22 +18,6 @@ const HeroesAddForm = () => {
         request(`http://localhost:3001/heroes/`, "POST", JSON.stringify(newHero))
             .then(dispatch(heroCreated(newHero)))
             .catch(err => console.log(err));
-    }
-
-    const renderFilters = (filters, status) => {
-        if (status === "loading") {
-            return <option>Загрузка элементов</option>
-        } else if (status === "error") {
-            return <option>Ошибка загрузки</option>
-        }
-
-        if (filters && filters.length > 0 ) {
-            return filters.map(({name, label}) => {
-                if (name === 'all')  return;
-
-                return <option key={name} value={name}>{label}</option>
-            })
-        }
     }
 
     return (
