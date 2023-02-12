@@ -1,1 +1,1 @@
-This is test project with hero admin panel!
+Учебный проект. Использование react + redux + RTK Query.
